@@ -1,0 +1,1810 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Railway Inspection Mobile</title>
+    <style>
+        /* Mobile First Design */
+        :root {
+            --primary-blue: #002147;
+            --secondary-blue: #0056b3;
+            --railway-red: #dc143c;
+            --success-green: #28a745;
+            --warning-yellow: #ffc107;
+            --light-gray: #f8f9fa;
+            --dark-gray: #343a40;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            line-height: 1.6;
+            color: var(--dark-gray);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 10px;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .app-container {
+            max-width: 100%;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            min-height: 90vh;
+            position: relative;
+        }
+
+        /* Header */
+        .app-header {
+            background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue));
+            color: white;
+            padding: 20px 15px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+        }
+
+        .railway-logo {
+            font-size: 32px;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .header-text {
+            flex-grow: 1;
+            text-align: left;
+        }
+
+        .header-text h1 {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: white;
+        }
+
+        .header-text h2 {
+            font-size: 13px;
+            font-weight: 400;
+            opacity: 0.9;
+            color: white;
+        }
+
+        /* Status Bar */
+        .status-bar {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 12px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .status-not-started { background: #ffc107; color: #856404; }
+        .status-in-progress { background: #17a2b8; color: white; }
+        .status-completed { background: #28a745; color: white; }
+        .status-submitted { background: #155724; color: white; }
+
+        .inspection-id {
+            font-family: 'Courier New', monospace;
+            background: rgba(0, 0, 0, 0.3);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 15px;
+            max-height: calc(100vh - 250px);
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* Form Sections */
+        .form-section {
+            background: var(--light-gray);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            border-left: 5px solid var(--railway-red);
+            position: relative;
+        }
+
+        .section-title {
+            color: var(--primary-blue);
+            margin-bottom: 20px;
+            font-size: 18px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title i {
+            color: var(--railway-red);
+            font-size: 20px;
+        }
+
+        /* Form Groups */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark-gray);
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .required::after {
+            content: " *";
+            color: var(--railway-red);
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            font-family: inherit;
+            transition: all 0.3s;
+            background: white;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--secondary-blue);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(0, 86, 179, 0.1);
+        }
+
+        input:read-only, textarea:read-only {
+            background: #f5f5f5;
+            color: #666;
+        }
+
+        .disabled {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        /* Photo Upload */
+        .photo-upload-area {
+            border: 2px dashed #ccc;
+            border-radius: 10px;
+            padding: 30px 20px;
+            text-align: center;
+            background: white;
+            margin-top: 10px;
+            transition: all 0.3s;
+        }
+
+        .photo-upload-area.active {
+            border-color: var(--success-green);
+            background: rgba(40, 167, 69, 0.05);
+        }
+
+        .photo-upload-area i {
+            font-size: 40px;
+            color: #ccc;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .photo-preview-container {
+            margin-top: 15px;
+            position: relative;
+        }
+
+        .photo-preview {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 10px;
+            border: 2px solid #e0e0e0;
+            display: none;
+        }
+
+        .remove-photo {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: var(--railway-red);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        /* Observations Table */
+        .observations-section {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .observations-header {
+            background: var(--primary-blue);
+            color: white;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .observations-count {
+            background: var(--railway-red);
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .observations-list {
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .observation-card {
+            background: var(--light-gray);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-left: 4px solid var(--secondary-blue);
+            position: relative;
+        }
+
+        .observation-number {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: var(--primary-blue);
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .observation-details {
+            margin-bottom: 10px;
+        }
+
+        .observation-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .action-item {
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 13px;
+        }
+
+        .action-item strong {
+            color: var(--primary-blue);
+            display: block;
+            margin-bottom: 3px;
+            font-size: 12px;
+        }
+
+        .observation-photo {
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        .observation-photo img {
+            max-width: 100px;
+            max-height: 80px;
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+        }
+
+        .delete-observation {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            color: var(--railway-red);
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        /* Buttons */
+        .button-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .button-group-full {
+            grid-template-columns: 1fr;
+        }
+
+        .btn {
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            text-align: center;
+            min-height: 56px;
+            touch-action: manipulation;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue));
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #ffc107, #ffb347);
+            color: #212529;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #dc3545, #dc143c);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #6c757d, #5a6268);
+            color: white;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            margin: 20px 0;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--railway-red), var(--secondary-blue));
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        .progress-text {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            color: #666;
+            font-weight: 500;
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: sticky;
+            bottom: 0;
+            background: white;
+            border-top: 2px solid #e0e0e0;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            z-index: 100;
+        }
+
+        .nav-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            background: var(--light-gray);
+            color: var(--dark-gray);
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+        }
+
+        .nav-btn.active {
+            background: var(--primary-blue);
+            color: white;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow: hidden;
+            animation: modalSlideUp 0.3s ease;
+        }
+
+        @keyframes modalSlideUp {
+            from {
+                transform: translateY(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            background: var(--primary-blue);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 28px;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .close-modal:active {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .modal-body {
+            padding: 20px;
+            max-height: calc(90vh - 80px);
+            overflow-y: auto;
+        }
+
+        /* Toast Notifications */
+        .toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            z-index: 1001;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 300px;
+            max-width: 90%;
+            transition: transform 0.3s ease;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .toast.success {
+            border-left: 5px solid var(--success-green);
+        }
+
+        .toast.error {
+            border-left: 5px solid var(--railway-red);
+        }
+
+        .toast.info {
+            border-left: 5px solid var(--secondary-blue);
+        }
+
+        .toast.warning {
+            border-left: 5px solid var(--warning-yellow);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            color: #e0e0e0;
+            margin-bottom: 15px;
+        }
+
+        /* Print Styles */
+        @media print {
+            .no-print, .bottom-nav, .modal {
+                display: none !important;
+            }
+            body {
+                background: white !important;
+                padding: 0 !important;
+            }
+            .app-container {
+                box-shadow: none !important;
+                border-radius: 0 !important;
+            }
+        }
+
+        /* Swipe Actions */
+        .swipeable {
+            transition: transform 0.3s ease;
+        }
+
+        .swipe-left {
+            transform: translateX(-100px);
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--secondary-blue);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Offline Indicator */
+        .offline-indicator {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: var(--warning-yellow);
+            color: #856404;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            z-index: 1002;
+            display: none;
+            align-items: center;
+            gap: 5px;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Offline Indicator -->
+    <div class="offline-indicator" id="offlineIndicator">
+        <i class="fas fa-wifi-slash"></i> Offline Mode
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">
+        <i class="fas fa-info-circle"></i>
+        <span id="toastMessage"></span>
+    </div>
+
+    <!-- Photo Modal -->
+    <div class="modal" id="photoModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 style="margin: 0; font-size: 18px;">Photo Evidence</h3>
+                <button class="close-modal" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <img id="modalPhoto" src="" alt="Evidence Photo" style="width:100%; border-radius: 10px;">
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App Container -->
+    <div class="app-container">
+        <!-- Header -->
+        <div class="app-header">
+            <div class="header-content">
+                <div class="railway-logo">
+                    <i class="fas fa-train"></i>
+                </div>
+                <div class="header-text">
+                    <h1>RAILWAY COMMERCIAL INSPECTION</h1>
+                    <h2>MYSURU DIVISION | INSPECTION SYSTEM</h2>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <div>
+                <span id="currentStatus" class="status-badge status-not-started">
+                    <i class="fas fa-circle"></i> Not Started
+                </span>
+            </div>
+            <div>
+                <span class="inspection-id" id="inspectionIdDisplay">INSP-XXXX-XXXX</span>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content" id="mainContent">
+            <!-- Inspector Details Section -->
+            <div class="form-section" id="inspectorSection">
+                <h3 class="section-title">
+                    <i class="fas fa-user-tie"></i> INSPECTOR DETAILS
+                </h3>
+                
+                <div class="form-group">
+                    <label for="inspectorName" class="required">
+                        <i class="fas fa-user"></i> Full Name
+                    </label>
+                    <input type="text" id="inspectorName" placeholder="Enter your full name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="inspectorDesignation" class="required">
+                        <i class="fas fa-id-badge"></i> Designation
+                    </label>
+                    <input type="text" id="inspectorDesignation" placeholder="e.g., Commercial Inspector" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="station" class="required">
+                        <i class="fas fa-train-station"></i> Station/Unit
+                    </label>
+                    <input type="text" id="station" placeholder="Enter station name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="inspectionType" class="required">
+                        <i class="fas fa-search"></i> Inspection Type
+                    </label>
+                    <select id="inspectionType" disabled required>
+                        <option value="">Select type</option>
+                        <option value="Routine">Routine Inspection</option>
+                        <option value="Surprise">Surprise Check</option>
+                        <option value="Special">Special Audit</option>
+                        <option value="Complaint">Complaint Based</option>
+                    </select>
+                </div>
+
+                <button class="btn btn-primary" onclick="startInspection()" id="startBtn">
+                    <i class="fas fa-play-circle"></i> START INSPECTION
+                </button>
+            </div>
+
+            <!-- Timings Section -->
+            <div class="form-section" id="timingsSection" style="display: none;">
+                <h3 class="section-title">
+                    <i class="fas fa-clock"></i> INSPECTION TIMINGS
+                </h3>
+                
+                <div class="form-group">
+                    <label for="startTime">
+                        <i class="fas fa-play"></i> Start Time
+                    </label>
+                    <input type="datetime-local" id="startTime" readonly>
+                </div>
+
+                <div class="form-group">
+                    <label for="endTime">
+                        <i class="fas fa-stop"></i> End Time
+                    </label>
+                    <input type="datetime-local" id="endTime" readonly>
+                </div>
+            </div>
+
+            <!-- Add Observation Section -->
+            <div class="form-section" id="observationSection" style="display: none;">
+                <h3 class="section-title">
+                    <i class="fas fa-clipboard-list"></i> ADD OBSERVATION
+                </h3>
+
+                <!-- Progress Bar -->
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <div class="progress-text">
+                        <span>Progress</span>
+                        <span id="progressPercentage">0%</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="deficiency" class="required">
+                        <i class="fas fa-exclamation-circle"></i> Deficiency / Observation
+                    </label>
+                    <textarea id="deficiency" rows="3" disabled 
+                              placeholder="Describe the deficiency in detail..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="actionStaff" class="required">
+                        <i class="fas fa-user-cog"></i> Action by Staff/Dept
+                    </label>
+                    <input type="text" id="actionStaff" disabled 
+                           placeholder="Required action by staff">
+                </div>
+
+                <div class="form-group">
+                    <label for="actionOffice" class="required">
+                        <i class="fas fa-building"></i> Action by Office (Sr.DCM)
+                    </label>
+                    <input type="text" id="actionOffice" disabled 
+                           placeholder="Required action by Sr.DCM office">
+                </div>
+
+                <!-- Photo Upload -->
+                <div class="form-group">
+                    <label>
+                        <i class="fas fa-camera"></i> Photo Evidence
+                    </label>
+                    <div class="photo-upload-area" id="photoUploadArea" onclick="document.getElementById('observationPhoto').click()">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p style="color: #666; margin-bottom: 10px;">Tap to upload photo</p>
+                        <p style="font-size: 12px; color: #999;">Max size: 5MB | JPG, PNG</p>
+                        <input type="file" id="observationPhoto" accept="image/*" 
+                               style="display: none;" onchange="handlePhotoUpload(event)">
+                    </div>
+                    <div class="photo-preview-container">
+                        <img id="photoPreview" class="photo-preview" alt="Preview">
+                        <button class="remove-photo" onclick="removePhoto()" style="display: none;">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn btn-secondary" onclick="clearObservationForm()">
+                        <i class="fas fa-times"></i> CLEAR
+                    </button>
+                    <button class="btn btn-success" id="addObsBtn" onclick="addObservation()" disabled>
+                        <i class="fas fa-plus-circle"></i> ADD OBSERVATION
+                    </button>
+                </div>
+            </div>
+
+            <!-- Observations Summary Section -->
+            <div class="form-section" id="summarySection" style="display: none;">
+                <h3 class="section-title">
+                    <i class="fas fa-list-check"></i> OBSERVATIONS SUMMARY
+                </h3>
+
+                <div class="observations-section">
+                    <div class="observations-header">
+                        <h4 style="margin: 0; font-size: 16px;">All Observations</h4>
+                        <div class="observations-count" id="observationsCount">0</div>
+                    </div>
+                    
+                    <div class="observations-list" id="observationsList">
+                        <!-- Empty State -->
+                        <div class="empty-state" id="emptyState">
+                            <i class="fas fa-clipboard"></i>
+                            <h3 style="margin: 10px 0 5px 0;">No Observations</h3>
+                            <p>Start adding observations above</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="button-group-full" style="margin-top: 20px;">
+                    <button class="btn btn-warning" id="saveDraftBtn" onclick="saveDraft()" disabled>
+                        <i class="fas fa-save"></i> SAVE DRAFT
+                    </button>
+                    
+                    <button class="btn btn-primary" id="completeBtn" onclick="completeInspection()" disabled>
+                        <i class="fas fa-flag-checkered"></i> COMPLETE INSPECTION
+                    </button>
+                    
+                    <button class="btn btn-success" id="submitBtn" onclick="submitInspection()" disabled>
+                        <i class="fas fa-paper-plane"></i> SUBMIT REPORT
+                    </button>
+                    
+                    <button class="btn btn-danger" id="printBtn" onclick="printReport()" disabled>
+                        <i class="fas fa-print"></i> PRINT PDF
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <div class="bottom-nav no-print">
+            <button class="nav-btn active" onclick="showSection('inspector')">
+                <i class="fas fa-user"></i>
+                <span>Inspector</span>
+            </button>
+            <button class="nav-btn" onclick="showSection('timings')">
+                <i class="fas fa-clock"></i>
+                <span>Timings</span>
+            </button>
+            <button class="nav-btn" onclick="showSection('observation')">
+                <i class="fas fa-plus-circle"></i>
+                <span>Add Obs</span>
+            </button>
+            <button class="nav-btn" onclick="showSection('summary')">
+                <i class="fas fa-list"></i>
+                <span>Summary</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Hidden Report Template -->
+    <div id="reportTemplate" style="display: none;">
+        <div style="padding: 20px; font-family: Arial, sans-serif;">
+            <h1 style="color: #002147; text-align: center; margin-bottom: 20px;">
+                RAILWAY COMMERCIAL INSPECTION REPORT
+            </h1>
+            <!-- Report content will be generated here -->
+        </div>
+    </div>
+
+    <script>
+        // ================= CONFIGURATION =================
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwQUOn_HMuGhL6MXIBmnR56Pl1YXR5h6mxD2M7zwyof8lZxupcqwMhqYW-aplBUMu9Acg/exec'; // Replace with your URL
+
+        // ================= STATE MANAGEMENT =================
+        let observations = [];
+        let currentInspectionId = null;
+        let currentStatus = 'not_started'; // not_started, in_progress, completed, submitted
+        let currentPhoto = null;
+        let offlineMode = false;
+        let pendingSync = [];
+
+        // ================= INITIALIZATION =================
+        document.addEventListener('DOMContentLoaded', function() {
+            // Generate unique inspection ID
+            generateInspectionId();
+            
+            // Check for saved draft
+            checkSavedDraft();
+            
+            // Setup offline detection
+            setupOfflineDetection();
+            
+            // Setup service worker for PWA
+            setupServiceWorker();
+            
+            // Add touch event listeners for mobile
+            setupTouchEvents();
+        });
+
+        function generateInspectionId() {
+            const date = new Date();
+            const year = date.getFullYear();
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            const day = date.getDate().toString().padStart(2, '0');
+            const random = Math.floor(1000 + Math.random() * 9000);
+            currentInspectionId = `INSP-${year}${month}${day}-${random}`;
+            document.getElementById('inspectionIdDisplay').textContent = currentInspectionId;
+        }
+
+        function setupOfflineDetection() {
+            window.addEventListener('online', () => {
+                offlineMode = false;
+                document.getElementById('offlineIndicator').style.display = 'none';
+                showToast('Back online. Syncing data...', 'info');
+                syncPendingData();
+            });
+
+            window.addEventListener('offline', () => {
+                offlineMode = true;
+                document.getElementById('offlineIndicator').style.display = 'flex';
+                showToast('Working offline. Data will sync when online.', 'warning');
+            });
+
+            // Initial check
+            offlineMode = !navigator.onLine;
+            if (offlineMode) {
+                document.getElementById('offlineIndicator').style.display = 'flex';
+            }
+        }
+
+        function setupServiceWorker() {
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('/sw.js').catch(error => {
+                    console.log('Service Worker registration failed:', error);
+                });
+            }
+        }
+
+        function setupTouchEvents() {
+            // Add swipe detection for observations list
+            const obsList = document.getElementById('observationsList');
+            let startX, startY;
+            
+            obsList.addEventListener('touchstart', e => {
+                startX = e.touches[0].clientX;
+                startY = e.touches[0].clientY;
+            });
+
+            obsList.addEventListener('touchmove', e => {
+                if (!startX || !startY) return;
+                
+                const diffX = startX - e.touches[0].clientX;
+                const diffY = startY - e.touches[0].clientY;
+                
+                if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
+                    // Horizontal swipe detected
+                    e.preventDefault();
+                }
+            });
+
+            obsList.addEventListener('touchend', e => {
+                startX = null;
+                startY = null;
+            });
+        }
+
+        // ================= NAVIGATION =================
+        function showSection(section) {
+            // Update active nav button
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Show selected section
+            const sections = ['inspector', 'timings', 'observation', 'summary'];
+            sections.forEach(sec => {
+                const element = document.getElementById(sec + 'Section');
+                if (element) {
+                    element.style.display = sec === section ? 'block' : 'none';
+                }
+            });
+
+            // Scroll to top
+            document.getElementById('mainContent').scrollTop = 0;
+        }
+
+        // ================= INSPECTION FUNCTIONS =================
+        function startInspection() {
+            const inspectorName = document.getElementById('inspectorName').value.trim();
+            const inspectorDesignation = document.getElementById('inspectorDesignation').value.trim();
+            const station = document.getElementById('station').value.trim();
+
+            // Validation
+            if (!inspectorName || !inspectorDesignation || !station) {
+                showToast('Please fill all inspector details', 'error');
+                return;
+            }
+
+            // Set start time
+            const now = new Date();
+            const timezoneOffset = now.getTimezoneOffset() * 60000;
+            const localTime = new Date(now.getTime() - timezoneOffset);
+            const formatted = localTime.toISOString().slice(0, 16);
+            
+            document.getElementById('startTime').value = formatted;
+
+            // Enable form fields
+            enableFormFields(true);
+            
+            // Update status
+            currentStatus = 'in_progress';
+            updateUI();
+            
+            // Show other sections
+            document.getElementById('timingsSection').style.display = 'block';
+            document.getElementById('observationSection').style.display = 'block';
+            document.getElementById('summarySection').style.display = 'block';
+            
+            // Navigate to observation section
+            showSection('observation');
+            
+            showToast('Inspection started successfully', 'success');
+            
+            // Start auto-save
+            startAutoSave();
+        }
+
+        function enableFormFields(enable) {
+            const fields = ['inspectionType', 'deficiency', 'actionStaff', 'actionOffice', 'observationPhoto', 'addObsBtn'];
+            fields.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.disabled = !enable;
+                    if (enable) {
+                        element.classList.remove('disabled');
+                    } else {
+                        element.classList.add('disabled');
+                    }
+                }
+            });
+            
+            // Enable photo upload area
+            const uploadArea = document.getElementById('photoUploadArea');
+            if (enable) {
+                uploadArea.style.cursor = 'pointer';
+                uploadArea.onclick = () => document.getElementById('observationPhoto').click();
+            } else {
+                uploadArea.style.cursor = 'not-allowed';
+                uploadArea.onclick = null;
+            }
+        }
+
+        function handlePhotoUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Validate file
+            if (!file.type.match('image.*')) {
+                showToast('Please select an image file', 'error');
+                return;
+            }
+
+            if (file.size > 5 * 1024 * 1024) {
+                showToast('Image size should be less than 5MB', 'error');
+                return;
+            }
+
+            // Preview image
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                currentPhoto = {
+                    data: e.target.result,
+                    name: file.name,
+                    type: file.type
+                };
+                
+                const preview = document.getElementById('photoPreview');
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+                
+                document.querySelector('.remove-photo').style.display = 'block';
+                document.getElementById('photoUploadArea').classList.add('active');
+                
+                showToast('Photo ready for upload', 'success');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function removePhoto() {
+            currentPhoto = null;
+            document.getElementById('photoPreview').style.display = 'none';
+            document.getElementById('observationPhoto').value = '';
+            document.querySelector('.remove-photo').style.display = 'none';
+            document.getElementById('photoUploadArea').classList.remove('active');
+        }
+
+        async function addObservation() {
+            const deficiency = document.getElementById('deficiency').value.trim();
+            const actionStaff = document.getElementById('actionStaff').value.trim();
+            const actionOffice = document.getElementById('actionOffice').value.trim();
+
+            // Validation
+            if (!deficiency) {
+                showToast('Please enter a deficiency', 'error');
+                return;
+            }
+            if (!actionStaff || !actionOffice) {
+                showToast('Please specify actions for both staff and office', 'error');
+                return;
+            }
+
+            // Create observation object
+            const observation = {
+                id: Date.now(),
+                deficiency: deficiency,
+                actionStaff: actionStaff,
+                actionOffice: actionOffice,
+                photo: currentPhoto,
+                timestamp: new Date().toLocaleTimeString('en-IN', { 
+                    hour: '2-digit', 
+                    minute: '2-digit',
+                    hour12: true 
+                }),
+                date: new Date().toLocaleDateString('en-IN')
+            };
+
+            // Add to observations array
+            observations.push(observation);
+
+            // Update UI
+            updateObservationsList();
+            updateProgress();
+            clearObservationForm();
+
+            // Enable buttons
+            document.getElementById('saveDraftBtn').disabled = false;
+            document.getElementById('completeBtn').disabled = false;
+            document.getElementById('printBtn').disabled = false;
+
+            // Hide empty state
+            document.getElementById('emptyState').style.display = 'none';
+
+            showToast(`Observation #${observations.length} added`, 'success');
+            
+            // Auto-save after adding observation
+            saveDraft(true);
+        }
+
+        function clearObservationForm() {
+            document.getElementById('deficiency').value = '';
+            document.getElementById('actionStaff').value = '';
+            document.getElementById('actionOffice').value = '';
+            removePhoto();
+        }
+
+        function updateObservationsList() {
+            const list = document.getElementById('observationsList');
+            const count = document.getElementById('observationsCount');
+            
+            // Clear existing observations (except empty state)
+            const existingObs = list.querySelectorAll('.observation-card');
+            existingObs.forEach(obs => obs.remove());
+            
+            // Add observations
+            observations.forEach((obs, index) => {
+                const card = document.createElement('div');
+                card.className = 'observation-card swipeable';
+                card.innerHTML = `
+                    <div class="observation-number">${index + 1}</div>
+                    <div class="observation-details">
+                        <strong>Deficiency:</strong>
+                        <p style="margin-top: 5px;">${obs.deficiency}</p>
+                    </div>
+                    <div class="observation-actions">
+                        <div class="action-item">
+                            <strong>Staff Action:</strong>
+                            ${obs.actionStaff}
+                        </div>
+                        <div class="action-item">
+                            <strong>Office Action:</strong>
+                            ${obs.actionOffice}
+                        </div>
+                    </div>
+                    ${obs.photo ? `
+                    <div class="observation-photo">
+                        <img src="${obs.photo.data}" alt="Evidence" 
+                             onclick="viewPhoto('${obs.photo.data}')" style="cursor: pointer;">
+                    </div>
+                    ` : ''}
+                    <button class="delete-observation" onclick="deleteObservation(${obs.id})">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                `;
+                list.appendChild(card);
+            });
+            
+            count.textContent = observations.length;
+        }
+
+        function deleteObservation(id) {
+            if (!confirm('Delete this observation?')) return;
+            
+            observations = observations.filter(obs => obs.id !== id);
+            updateObservationsList();
+            updateProgress();
+            
+            if (observations.length === 0) {
+                document.getElementById('emptyState').style.display = 'block';
+                document.getElementById('completeBtn').disabled = true;
+                document.getElementById('printBtn').disabled = true;
+            }
+            
+            showToast('Observation deleted', 'info');
+            saveDraft(true);
+        }
+
+        function updateProgress() {
+            const progressFill = document.getElementById('progressFill');
+            const progressText = document.getElementById('progressPercentage');
+            
+            const progress = Math.min(observations.length * 20, 100);
+            progressFill.style.width = progress + '%';
+            progressText.textContent = progress + '%';
+            
+            updateUI();
+        }
+
+        function updateUI() {
+            const statusElement = document.getElementById('currentStatus');
+            
+            switch(currentStatus) {
+                case 'not_started':
+                    statusElement.className = 'status-badge status-not-started';
+                    statusElement.innerHTML = '<i class="fas fa-circle"></i> Not Started';
+                    break;
+                case 'in_progress':
+                    statusElement.className = 'status-badge status-in-progress';
+                    statusElement.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> In Progress';
+                    break;
+                case 'completed':
+                    statusElement.className = 'status-badge status-completed';
+                    statusElement.innerHTML = '<i class="fas fa-check-circle"></i> Completed';
+                    break;
+                case 'submitted':
+                    statusElement.className = 'status-badge status-submitted';
+                    statusElement.innerHTML = '<i class="fas fa-paper-plane"></i> Submitted';
+                    break;
+            }
+        }
+
+        // ================= SAVE & SYNC FUNCTIONS =================
+        function startAutoSave() {
+            // Auto-save every 30 seconds
+            setInterval(() => {
+                if (observations.length > 0 && currentStatus === 'in_progress') {
+                    saveDraft(true); // Silent save
+                }
+            }, 30000);
+        }
+
+        async function saveDraft(silent = false) {
+            if (observations.length === 0 && !silent) {
+                showToast('No observations to save', 'warning');
+                return;
+            }
+
+            const draftData = {
+                action: 'saveDraft',
+                inspectionId: currentInspectionId,
+                inspectorName: document.getElementById('inspectorName').value,
+                inspectorDesignation: document.getElementById('inspectorDesignation').value,
+                station: document.getElementById('station').value,
+                inspectionType: document.getElementById('inspectionType').value,
+                startTime: document.getElementById('startTime').value,
+                endTime: document.getElementById('endTime').value || '',
+                observations: observations.map(obs => ({
+                    deficiency: obs.deficiency,
+                    actionStaff: obs.actionStaff,
+                    actionOffice: obs.actionOffice,
+                    photoData: obs.photo ? obs.photo.data : null,
+                    timestamp: obs.timestamp
+                })),
+                status: currentStatus,
+                lastSaved: new Date().toISOString()
+            };
+
+            // Save to localStorage (always works)
+            localStorage.setItem('inspectionDraft', JSON.stringify(draftData));
+            
+            // Try to sync with server if online
+            if (!offlineMode) {
+                try {
+                    const response = await fetch(APPS_SCRIPT_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(draftData)
+                    });
+
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        if (!silent) {
+                            showToast('Draft saved to server', 'success');
+                        }
+                    } else {
+                        throw new Error(result.message);
+                    }
+                } catch (error) {
+                    console.error('Save error:', error);
+                    // Queue for later sync
+                    pendingSync.push(draftData);
+                    if (!silent) {
+                        showToast('Saved locally (offline)', 'warning');
+                    }
+                }
+            } else {
+                // Queue for later sync
+                pendingSync.push(draftData);
+                if (!silent) {
+                    showToast('Saved locally (offline)', 'warning');
+                }
+            }
+        }
+
+        async function syncPendingData() {
+            if (pendingSync.length === 0 || offlineMode) return;
+
+            showToast('Syncing pending data...', 'info');
+            
+            for (const data of pendingSync) {
+                try {
+                    const response = await fetch(APPS_SCRIPT_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(data)
+                    });
+
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        // Remove from pending sync
+                        pendingSync = pendingSync.filter(item => item !== data);
+                    }
+                } catch (error) {
+                    console.error('Sync error:', error);
+                }
+            }
+
+            if (pendingSync.length === 0) {
+                showToast('All data synced successfully', 'success');
+            }
+        }
+
+        function checkSavedDraft() {
+            const savedDraft = localStorage.getItem('inspectionDraft');
+            if (savedDraft) {
+                if (confirm('A saved draft was found. Load it?')) {
+                    loadDraft(JSON.parse(savedDraft));
+                }
+            }
+        }
+
+        function loadDraft(draft) {
+            // Load form fields
+            document.getElementById('inspectorName').value = draft.inspectorName || '';
+            document.getElementById('inspectorDesignation').value = draft.inspectorDesignation || '';
+            document.getElementById('station').value = draft.station || '';
+            document.getElementById('inspectionType').value = draft.inspectionType || '';
+            document.getElementById('startTime').value = draft.startTime || '';
+            document.getElementById('endTime').value = draft.endTime || '';
+
+            // Load observations
+            if (draft.observations) {
+                observations = draft.observations.map(obs => ({
+                    id: Date.now() + Math.random(),
+                    deficiency: obs.deficiency,
+                    actionStaff: obs.actionStaff,
+                    actionOffice: obs.actionOffice,
+                    photo: obs.photoData ? {
+                        data: obs.photoData,
+                        name: 'loaded.jpg',
+                        type: 'image/jpeg'
+                    } : null,
+                    timestamp: obs.timestamp || new Date().toLocaleTimeString(),
+                    date: new Date().toLocaleDateString()
+                }));
+            }
+
+            // Update UI
+            if (observations.length > 0) {
+                updateObservationsList();
+                document.getElementById('emptyState').style.display = 'none';
+                document.getElementById('saveDraftBtn').disabled = false;
+                document.getElementById('completeBtn').disabled = false;
+                document.getElementById('printBtn').disabled = false;
+            }
+
+            // Update status
+            currentStatus = draft.status || 'in_progress';
+            
+            // Enable form
+            if (currentStatus === 'in_progress' || currentStatus === 'completed') {
+                enableFormFields(true);
+                if (draft.endTime) {
+                    currentStatus = 'completed';
+                    document.getElementById('submitBtn').disabled = false;
+                }
+                
+                // Show sections
+                document.getElementById('timingsSection').style.display = 'block';
+                document.getElementById('observationSection').style.display = 'block';
+                document.getElementById('summarySection').style.display = 'block';
+            }
+
+            updateProgress();
+            updateUI();
+            showToast('Draft loaded successfully', 'success');
+        }
+
+        function completeInspection() {
+            if (observations.length === 0) {
+                showToast('Add at least one observation', 'error');
+                return;
+            }
+
+            // Set end time
+            const now = new Date();
+            const timezoneOffset = now.getTimezoneOffset() * 60000;
+            const localTime = new Date(now.getTime() - timezoneOffset);
+            const formatted = localTime.toISOString().slice(0, 16);
+            
+            document.getElementById('endTime').value = formatted;
+
+            currentStatus = 'completed';
+            updateUI();
+            
+            document.getElementById('submitBtn').disabled = false;
+            
+            showToast('Inspection completed. Ready to submit.', 'success');
+            
+            // Auto-save completion
+            saveDraft(true);
+        }
+
+        async function submitInspection() {
+            if (!document.getElementById('endTime').value) {
+                showToast('Complete inspection first', 'error');
+                return;
+            }
+
+            if (!confirm('Submit final report? This cannot be undone.')) {
+                return;
+            }
+
+            const submitBtn = document.getElementById('submitBtn');
+            const originalHTML = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<div class="spinner" style="width:20px;height:20px;"></div>';
+            submitBtn.disabled = true;
+
+            const submissionData = {
+                action: 'submitInspection',
+                inspectionId: currentInspectionId,
+                inspectorName: document.getElementById('inspectorName').value,
+                inspectorDesignation: document.getElementById('inspectorDesignation').value,
+                station: document.getElementById('station').value,
+                inspectionType: document.getElementById('inspectionType').value,
+                startTime: document.getElementById('startTime').value,
+                endTime: document.getElementById('endTime').value,
+                observations: observations.map(obs => ({
+                    deficiency: obs.deficiency,
+                    actionStaff: obs.actionStaff,
+                    actionOffice: obs.actionOffice,
+                    photoData: obs.photo ? obs.photo.data : null,
+                    timestamp: obs.timestamp
+                })),
+                status: 'submitted',
+                submittedAt: new Date().toISOString()
+            };
+
+            try {
+                const response = await fetch(APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(submissionData)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    currentStatus = 'submitted';
+                    updateUI();
+
+                    // Clear local storage
+                    localStorage.removeItem('inspectionDraft');
+                    pendingSync = [];
+
+                    showToast('Report submitted successfully!', 'success');
+
+                    // Auto-generate PDF
+                    setTimeout(() => {
+                        printReport();
+                    }, 2000);
+                } else {
+                    throw new Error(result.message);
+                }
+            } catch (error) {
+                console.error('Submission error:', error);
+                showToast('Submission failed: ' + error.message, 'error');
+            } finally {
+                submitBtn.innerHTML = originalHTML;
+                submitBtn.disabled = false;
+            }
+        }
+
+        // ================= VIEW FUNCTIONS =================
+        function viewPhoto(photoData) {
+            document.getElementById('modalPhoto').src = photoData;
+            document.getElementById('photoModal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('photoModal').style.display = 'none';
+        }
+
+        // ================= PRINT/PDF FUNCTIONS =================
+        function printReport() {
+            if (observations.length === 0) {
+                showToast('No observations to print', 'error');
+                return;
+            }
+
+            // Create report HTML
+            let reportHTML = `
+                <div style="padding: 20px; font-family: Arial, sans-serif;">
+                    <h1 style="color: #002147; text-align: center; margin-bottom: 10px;">
+                        RAILWAY COMMERCIAL INSPECTION REPORT
+                    </h1>
+                    <h3 style="color: #0056b3; text-align: center; margin-bottom: 30px;">
+                        MYSURU DIVISION - COMMERCIAL DEPARTMENT
+                    </h3>
+                    
+                    <table width="100%" style="margin-bottom: 20px; border-collapse: collapse;">
+                        <tr>
+                            <td width="50%" style="padding: 10px; border: 1px solid #ddd;">
+                                <strong>Inspecting Official:</strong><br>
+                                ${document.getElementById('inspectorName').value}
+                            </td>
+                            <td width="50%" style="padding: 10px; border: 1px solid #ddd;">
+                                <strong>Designation:</strong><br>
+                                ${document.getElementById('inspectorDesignation').value}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px; border: 1px solid #ddd;">
+                                <strong>Station/Unit:</strong><br>
+                                ${document.getElementById('station').value}
+                            </td>
+                            <td style="padding: 10px; border: 1px solid #ddd;">
+                                <strong>Inspection Type:</strong><br>
+                                ${document.getElementById('inspectionType').value}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px; border: 1px solid #ddd;">
+                                <strong>Start Time:</strong><br>
+                                ${formatDateTime(document.getElementById('startTime').value)}
+                            </td>
+                            <td style="padding: 10px; border: 1px solid #ddd;">
+                                <strong>End Time:</strong><br>
+                                ${document.getElementById('endTime').value ? 
+                                  formatDateTime(document.getElementById('endTime').value) : 
+                                  'In Progress'}
+                            </td>
+                        </tr>
+                    </table>
+                    
+                    <h3 style="color: #002147; border-bottom: 2px solid #dc143c; padding-bottom: 5px; margin: 30px 0 20px 0;">
+                        OBSERVATIONS & DEFICIENCIES (Total: ${observations.length})
+                    </h3>
+            `;
+
+            // Add observations table
+            reportHTML += `
+                <table width="100%" border="1" style="border-collapse: collapse; margin-bottom: 30px;">
+                    <thead>
+                        <tr style="background: #002147; color: white;">
+                            <th width="5%" style="padding: 10px; text-align: center;">S.No</th>
+                            <th width="35%" style="padding: 10px;">Deficiency / Observation</th>
+                            <th width="30%" style="padding: 10px;">Action by Staff/Dept</th>
+                            <th width="30%" style="padding: 10px;">Action by Office (Sr.DCM)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            observations.forEach((obs, index) => {
+                reportHTML += `
+                    <tr>
+                        <td style="padding: 10px; text-align: center; border: 1px solid #ddd;">${index + 1}</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">${obs.deficiency}</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">${obs.actionStaff}</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">${obs.actionOffice}</td>
+                    </tr>
+                `;
+            });
+
+            reportHTML += `
+                    </tbody>
+                </table>
+                
+                <div style="margin-top: 50px;">
+                    <table width="100%">
+                        <tr>
+                            <td width="50%" align="center" style="padding-top: 50px;">
+                                <div style="border-top: 1px solid #000; width: 80%; padding-top: 10px;">
+                                    <strong>Signature of Inspecting Officer</strong><br>
+                                    ${document.getElementById('inspectorName').value}<br>
+                                    ${document.getElementById('inspectorDesignation').value}
+                                </div>
+                            </td>
+                            <td width="50%" align="center" style="padding-top: 50px;">
+                                <div style="border-top: 1px solid #000; width: 80%; padding-top: 10px;">
+                                    <strong>For Office of Sr.DCM</strong><br>
+                                    MYSURU DIVISION<br>
+                                    Date: ${new Date().toLocaleDateString('en-IN')}
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                
+                <div style="font-size: 11px; color: #666; text-align: center; margin-top: 60px; padding-top: 15px; border-top: 1px solid #ddd;">
+                    <p>Report ID: ${currentInspectionId} | Generated: ${new Date().toLocaleString('en-IN')}</p>
+                    <p>Computer Generated Report - Official Use Only</p>
+                </div>
+            </div>
+            `;
+
+            // Open print window
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Inspection Report - ${currentInspectionId}</title>
+                    <style>
+                        @media print {
+                            @page { margin: 0.5in; }
+                            body { -webkit-print-color-adjust: exact; }
+                        }
+                    </style>
+                </head>
+                <body>
+                    ${reportHTML}
+                    <script>
+                        window.onload = function() {
+                            window.print();
+                            setTimeout(function() {
+                                window.close();
+                            }, 1000);
+                        };
+                    <\/script>
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+        }
+
+        // ================= UTILITY FUNCTIONS =================
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            
+            toastMessage.textContent = message;
+            toast.className = `toast ${type}`;
+            toast.classList.add('show');
+            
+            // Remove any existing timeout
+            if (toast.timeoutId) clearTimeout(toast.timeoutId);
+            
+            // Auto-hide after 5 seconds
+            toast.timeoutId = setTimeout(() => {
+                toast.classList.remove('show');
+            }, 5000);
+        }
+
+        function formatDateTime(dateTimeStr) {
+            if (!dateTimeStr) return '';
+            const date = new Date(dateTimeStr);
+            return date.toLocaleString('en-IN', {
+                day: '2-digit',
+                month: 'short',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true
+            });
+        }
+
+        // Prevent accidental navigation
+        window.addEventListener('beforeunload', function(e) {
+            if (observations.length > 0 && currentStatus !== 'submitted') {
+                e.preventDefault();
+                e.returnValue = 'You have unsaved inspection data.';
+            }
+        });
+
+        // Add to home screen prompt
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            showToast('Add this app to your home screen for easy access!', 'info');
+        });
+
+        // Service Worker file (sw.js) - for offline functionality
+        const serviceWorkerCode = `
+            self.addEventListener('install', event => {
+                event.waitUntil(
+                    caches.open('railway-inspection-v1').then(cache => {
+                        return cache.addAll([
+                            '/',
+                            '/index.html',
+                            '/manifest.json'
+                        ]);
+                    })
+                );
+            });
+
+            self.addEventListener('fetch', event => {
+                event.respondWith(
+                    caches.match(event.request).then(response => {
+                        return response || fetch(event.request);
+                    })
+                );
+            });
+        `;
+
+        // Save service worker code to localStorage
+        localStorage.setItem('sw-code', serviceWorkerCode);
+    </script>
+</body>
+</html>
